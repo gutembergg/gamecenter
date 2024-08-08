@@ -45,11 +45,11 @@ export function usePopulateOptions() {
             teamId: "",
             hallId: ""
         }
-        const _params = { game_params, ...params}
         const mergedParams = Object.assign({}, game_params, params);
 
-        console.log("Params:: ", mergedParams);
         await fetchData(endpoints.games, null, mergedParams);
+
+        console.log("response.value: ", response.value);
 
         const groupedByPlayDate = response.value.reduce((acc, game) => {
             const playDateDateOnly = game.playDate.split(" ")[0];

@@ -106,11 +106,15 @@
     const handlerLeagues = async (newValue) => {
       selectedOption.leagues = newValue;
       phasesOptions.value = await populatePhasesOptions(newValue);
+
+      console.log("Leagues: ", newValue);
     }
 
     const handlerPhases = async (newValue) => {
       selectedOption.phases = newValue;
       groupsOptions.value = await populateGroupsOptions(newValue);
+      console.log("Phases: ", newValue);
+
     }
 
     const handlerGroups = async (newValue) => {
@@ -118,6 +122,8 @@
       games.current = await populateGames();
       games.results = await populateGames({dateStart: "2022-10-10", dateEnd: "2023-08-16",});
       games.matchPlans = await populateGames({dateStart: "2022-02-15"});
+      console.log("Groups: ", newValue);
+
     }
 
     const selectSession = (event) => {

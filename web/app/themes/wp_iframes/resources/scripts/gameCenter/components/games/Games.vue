@@ -46,6 +46,29 @@ export default {
 .games_container {
     width: 79%;
     margin: 0 auto;
+    padding-bottom: 14px;
+}
+
+.game-date {
+  background-color: #707070;
+  color: white;
+  padding-left: 5px;
+  width: 20%;
+  border-top-left-radius: 4px;  
+  border-top-right-radius: 4px;
+}
+
+@media (max-width: 1150px) {
+  .game-date {
+  width: 40%;
+
+  }
+}
+
+@media (max-width: 600px) {
+  .game-date {
+  width: 100%;
+  }
 }
 
 </style>

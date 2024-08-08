@@ -15,7 +15,7 @@ import Games from '../games/Games';
 
 export default {
     props: {
-        games: Array
+        games: Object
     },
     components: {
         HeaderMenu,

@@ -13,14 +13,38 @@ domReady(async () => {
 if (import.meta.webpackHot) import.meta.webpackHot.accept(console.error);
 
 import { createApp } from "vue";
+import { createWebHistory, createRouter } from 'vue-router';
 import GameCenter from "./gameCenter/GameCenter.vue";
-// import ElementPlus from 'element-plus';
-// import 'element-plus/dist/index.css';
 import Vueform from '@vueform/vueform'
 import vueformConfig from '../../vueform.config.js';
 
+import Championship from './gameCenter/components/championship/Championship.vue';
+import Teams from './gameCenter/components/teams/Teams.vue';
+
+const routes = [
+  { path: '/championship', component: Championship },
+  // {
+  //   path: '/swsscup',
+  //   component: SearchResults,
+  // },
+  // {
+  //   path: `/topscore`,
+  //   component: Cultes,
+  // },
+  {
+    path: '/teams',
+    component: Teams,
+  }
+];
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
+
 const app = createApp(GameCenter)
-//app.use(ElementPlus)
+
+app.use(router);
 app.use(Vueform, vueformConfig)
 app.mount("#appGameCenterVue");
 
