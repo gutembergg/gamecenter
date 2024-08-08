@@ -1,0 +1,32 @@
+name: gamecenter
+recipe: wordpress
+proxy:
+  appserver:
+    - gamecenter.lndo.site
+  phpmyadmin:
+    - phpmyadmin.gamecenter.lndo.site
+config:
+  php: "8.1"
+  via: apache:2.4
+  webroot: web
+  database: mysql:5.7
+  xdebug: true
+  config:
+    php: config/php.ini
+services:
+  phpmyadmin:
+    type: phpmyadmin
+    hosts:
+      - database
+
+  testdatabase:
+    type: mysql
+    creds:
+      user: phpunit
+      password: phpunit
+      database: phpunit
+  mailhog:
+    type: mailhog
+    portforward: true
+    hogfrom:
+      - appserver

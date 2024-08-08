@@ -1,0 +1,490 @@
+/* Game Center class */
+.gc_container {
+    min-height: 60vh;
+}
+
+.gc_content {
+    margin: 0 auto;
+    max-width: 90vw;
+}
+
+.gc_header {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 3px;
+    padding: 10px;
+}
+
+.gc_header .gc_buttons {
+    height: 4rem;
+    width: 100%;
+    border: none;
+    border-radius: 4px;
+    background-color: #424242;
+}
+.gc_header .gc_buttons:hover {
+    background-color: #202020 !important;
+}
+
+.gc_header .gc_buttons:focus {
+    background: #202020 !important;
+}
+
+.gc_header .gc_buttons.active {
+    background: #202020 !important;
+}
+
+
+/* Selects form */
+
+.select_box {
+    width: 240px;
+    padding: 0;
+}
+
+.slected_option {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 35px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #000;
+    background: #fff;
+    padding: 5px 2px;
+    border: 1px solid #DCDCDC;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+}
+.slected_option p {
+    padding-left: 4px;
+    color: #333;
+}
+
+.arrow {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    width: 7px;
+    height: 7px;
+    border-top: 2px solid;
+    border-left: 2px solid;
+    transform: rotate(-135deg);
+    transition: 0.4s;
+}
+
+.arrow_active {
+    top: 20px;
+    transform: rotate(45deg)
+}
+
+.option_box {
+    position: relative;
+    margin-top: 10px;
+}
+
+.option_box nav {
+    z-index: 99999;
+    position: absolute;
+    width: 100%;
+    max-height: 0px;
+    overflow-y: auto;
+    background-color: #E0E0E0;
+    border-radius: 4px;
+    transition: 0.4s;
+    box-shadow: 2px 2px 2px gray;
+}
+
+.nav_active {
+    max-height: 250px !important;
+}
+
+.option_box nav ul {
+    margin-top: 0;
+    padding: 4px 0;
+}
+
+.option_box nav ul li {
+    font-size: 1rem;
+    background-color: #E0E0E0;
+    color: #333;
+    list-style: none;
+    padding: 5px;
+    cursor: pointer;
+    transition: 0.4s;
+}
+
+.option_box nav ul li:hover {
+    background-color: #d40018;
+    color: #fff;
+}
+
+
+/*********/
+.form_filter_wrapper {
+    margin-top: 1.5rem;
+}
+
+#filter-form {
+    width: 70%;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    row-gap: 5px;
+    column-gap: 5px;
+    padding: 10px;
+}
+
+.gc_filter-select {
+    width: 15rem;
+    border: none;
+    background: #C0C0C0;
+    padding: 8px;
+}
+.gc_filter-select:focus {
+    background: #C0C0C0;
+    border: 1px solid red;
+}
+
+/**** Games ****/
+.gc_table_wrapper {
+    display: none;
+    width: 100%;
+    border-collapse: collapse;
+}
+.gc_table_wrapper td {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+.gc_hall-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.gc_teams {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gc_teams .vs {
+    margin: 0 10px;
+}
+
+.icon-chevron {
+    position: absolute;
+    right: 10px;
+    top: 30%;
+    transition: transform 0.3s ease;
+}
+
+.icon-chevron.active {
+    transform: rotate(90deg);
+}
+
+.game-hall-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    margin-right: 20px;
+}
+
+/* List games */
+.games-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: none;
+}
+
+.game-item {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.game-date {
+    background-color: #d9d9d9;
+    max-width: 400px;
+    padding-left: 5px;
+}
+
+.game-hours {
+    margin-left: 3px;
+}
+
+.game-teams_home {
+    width: 32%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+.game-teams_away {
+    width: 32%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+/* .game-vs {
+  
+} */
+
+.game-teams_mobile {
+    display: none;
+}
+
+.team {
+    margin: 0 5px;
+}
+
+.vs {
+    margin: 0 10px;
+    font-weight: bold;
+    color: #d40018 !important;
+    font-size: 0.7rem;
+}
+
+.game-hall-info {
+    width: 41%;
+    font-size: 0.9em;
+    color: #666;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+.game-hall-info_mobile {
+    display: none;
+}
+
+.game-hall-info_icon {
+    margin-right: 8px;
+}
+
+.game-hall-info_icon-mobile {
+    margin-right: 4px;
+}
+
+.game-time {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.arrow-icon {
+    position: absolute;
+    right: 10px;
+    top: 10%;
+    transform: translateY(-50%);
+}
+
+.game-dropdown {
+    max-height: 0px;
+    overflow: hidden;
+    transition: max-height 0.4s
+}
+
+.game-dropdown.active {
+    max-height: 200px;
+}
+
+.match-number {
+    padding: 20px;
+    background-color: #E0E0E0;
+}
+.game-item-wrapper {
+    cursor: pointer;
+}
+
+/* .game-teams_text {
+    
+} */
+
+.game-teams_text:hover {
+    text-decoration: underline red;
+    color: #d40018;
+}
+
+@media (max-width: 770px) {
+    #filter-form {
+        width: 100%;
+    }
+    
+}
+
+@media (max-width: 610px) {
+  /*  .gc_header {
+        grid-template-columns: 1fr;
+    }*/
+    .gc_content {
+        max-width: 100%;
+    }
+    .game-item {
+        flex-direction: row-reverse;
+    }
+
+    .select_box {
+        width: 94%;
+    }
+    .game-teams_mobile {
+        display: block !important;
+    }
+    .game-teams_home {
+        display: none;
+    }
+    .game-vs {
+        display: none;
+    }
+    .game-teams_away {
+        display: none;
+    }
+    .game-hall-info {
+        display: none;
+    }
+    .game-hall-info_mobile {
+        display: block;
+        padding: 20px;
+        background-color: #E0E0E0;
+    }
+
+    .game-hall-info_mobile .hall-name{
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .game-hall-info_mobile .hall-name_text {
+        margin-right: 4px;
+    }
+    .game-time {
+        margin-right: 30px;
+    }
+    .match-number {
+        display: none !important;
+    }
+}
+
+@media (max-width: 500px){
+    .gc_submenu-content {
+        width: 100% !important;
+    }
+}
+/* Sub menu */
+.gc_submenu-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+}
+
+.gc_submenu-content {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.gc_submenu-header {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 3px;
+    padding: 10px;
+}
+
+.gc_submenu-buttons {
+    padding: 10px 20px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease, border-bottom 0.3s ease;
+    text-align: center;
+    background-color: #d40018;
+    height: 3rem;
+}
+
+.gc_submenu-buttons:focus {
+    outline: none;
+    background: #202020;
+}
+    .gc_submenu-buttons.active {
+        outline: none;
+        background: #8B0000;
+    }
+
+.gc_submenu-result {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.gc_submenu-buttons:hover {
+    background: #8B0000 !important;
+}
+
+#gc_submenu {
+    display: none;
+}
+
+/** Main page */
+#gc_championship {
+    display: none;
+}
+
+#gc_topscore {
+    display: none;
+}
+
+#gc_swsscup {
+    display: none;
+}
+
+#gc_teams {
+    display: none;
+}
+
+.loading-icon_championship {
+    display: none;
+    margin: 80px auto;
+    width: 70px;
+    height: 70px;
+    animation: rotate 2s linear infinite;
+}
+
+.loading-icon_team {
+    display: none;
+    margin: 80px auto;
+    width: 70px;
+    height: 70px;
+    animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
