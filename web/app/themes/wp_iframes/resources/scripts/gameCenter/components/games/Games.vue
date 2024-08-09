@@ -1,4 +1,5 @@
 <template>
+  <div>
     <div v-for="item in games" :key="item.date" class="games_container">
       <h3 class="game-date">{{ convertDate(item.date) }}</h3>
       <ul>
@@ -6,9 +7,11 @@
           v-for="game in item.games"
           :key="game.gameId"
           :game="game"
+          @teamId="selectedTeam"
         />
       </ul>
     </div>
+  </div>
 </template>
 
 <script>
@@ -20,9 +23,11 @@ export default {
   components: {
     Game
   },
-    setup (props) {
+  emits: ['selectedTeamId'],
+
+  setup (props, ctx) {
         
-      function convertDate(dateStr) {
+      const convertDate = (dateStr) => {
           const date = new Date(dateStr);
 
           // Create a formatter for the full weekday name in French
@@ -37,7 +42,12 @@ export default {
 
           return `${weekday}, ${formattedDate}`;
       }
-        return {convertDate}
+
+      const selectedTeam = (event) => {
+        const id = event.id;
+        ctx.emit('selectedTeamId', { id });
+      }
+        return { convertDate, selectedTeam }
     }
 }
 </script>

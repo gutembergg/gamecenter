@@ -6,9 +6,12 @@
 
 <script>
 export default {
-    setup () {
+    props: {
+        selectedTeamId: Number
+    },
+    setup (props) {
         
-
+        console.log("PropsTeam: ", props.selectedTeamId);
         return {}
     }
 }

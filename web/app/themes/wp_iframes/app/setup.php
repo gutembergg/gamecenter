@@ -9,6 +9,19 @@ namespace App;
 use function Roots\bundle;
 
 /**
+ * Register app data
+ * @return void
+ */
+$appData = [
+    'gc_apikey' => GAME_CENTER_API_KEY
+  ];
+  
+  add_action('wp_enqueue_scripts', function () use ( $appData ) {
+    bundle('app')->enqueue()->localize('AppData', $appData);
+  }, 100);
+  
+
+/**
  * Register the theme assets.
  *
  * @return void

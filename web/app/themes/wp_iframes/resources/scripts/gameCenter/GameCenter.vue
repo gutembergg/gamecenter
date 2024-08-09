@@ -11,29 +11,27 @@
             </div>
         </div>
     </div>
-    <div v-if="activedSession === 'championship'" class="selects-box">
-      <Vueform>
+    <div v-show="activedSession === 'championship'" class="selects-box">
+      <Vueform class="filter-form-box">
         <SelectElement
-          name="select gender"
+          name="select_gender"
           placeholder="Select gender"
           @change="handlerGender"
           :value="selectedOption.gender"
           :native="false"
           :items="[{ value: 'm', label: 'Homme'}, { value: 'f', label: 'Femme'}]"
           class="select-filters"
+          :columns="{ container: 3 }"
         />
-      </Vueform>
-      <Vueform>
         <SelectElement
-          name="select leagues"
+          name="select_leagues"
           placeholder="Select league"
           @change="handlerLeagues"
           :native="false"
           :items="leaguesOptions"
           class="select-filters"
+           :columns="{ container: 3 }"
         />
-    </Vueform>
-    <Vueform>
         <SelectElement
           name="select phases"
           placeholder="Select phase"
@@ -41,9 +39,8 @@
           :native="false"
           :items="phasesOptions"
           class="select-filters"
+          :columns="{ container: 3 }"
         />
-    </Vueform>
-    <Vueform>
         <SelectElement
           name="select gropues"
           placeholder="Select groupe"
@@ -51,22 +48,24 @@
           :native="false"
           :items="groupsOptions"
           class="select-filters"
+          :columns="{ container: 3 }"
         />
     </Vueform>
     </div>
 
-    <Championship v-if="activedSession === 'championship'" :games="games" />
+    <Championship v-if="activedSession === 'championship'" :sessionActived="activedSession" :games="games" @activedSession="selectTeamSession" />
 
-    <Teams v-if="activedSession === 'teams'" />
+    <Teams v-if="activedSession === 'teams'" :selectedTeamId="selectedTeamId" />
 
   </main>
 </template>
 
 <script>
-  import { ref, reactive, onMounted } from "vue";
+  import { ref, reactive } from "vue";
   import {usePopulateOptions} from './hooks/usePopulateOptions';
   import Championship from './components/championship/Championship';
   import Teams from './components/teams/Teams';
+  import { getDateOneYearAgo, getCurrentDate } from './helpers/formaterFunctions';
   
 
   export default {
@@ -95,10 +94,13 @@
     });
 
     const activedSession = ref("championship");
+    const selectedTeamId = ref(null);
 
     const { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames } = usePopulateOptions();
 
-    const handlerGender = async (newValue) => {
+    const handlerGender = async (newValue, oldValue, el$) => {
+      let select2 = el$.form$.el$('select_leagues');
+      console.log("select_leagues",select2);
       selectedOption.gender = newValue;
       leaguesOptions.value = await populateLeaguesOptions(newValue);
     }
@@ -106,28 +108,29 @@
     const handlerLeagues = async (newValue) => {
       selectedOption.leagues = newValue;
       phasesOptions.value = await populatePhasesOptions(newValue);
-
-      console.log("Leagues: ", newValue);
     }
 
     const handlerPhases = async (newValue) => {
       selectedOption.phases = newValue;
       groupsOptions.value = await populateGroupsOptions(newValue);
-      console.log("Phases: ", newValue);
-
     }
 
     const handlerGroups = async (newValue) => {
+      const limitDataByYearAgo = getDateOneYearAgo();
+      const currentDate = getCurrentDate();
       selectedOption.group = newValue;
-      games.current = await populateGames();
-      games.results = await populateGames({dateStart: "2022-10-10", dateEnd: "2023-08-16",});
-      games.matchPlans = await populateGames({dateStart: "2022-02-15"});
-      console.log("Groups: ", newValue);
-
+      games.current = await populateGames('upcomingGames', { gender: selectedOption.gender, leagueId: selectedOption.leagues, phaseId: selectedOption.phases, groupId: selectedOption.group});
+      games.results = await populateGames('games', { gender: selectedOption.gender, leagueId: selectedOption.leagues, phaseId: selectedOption.phases, groupId: selectedOption.group, dateStart: limitDataByYearAgo, dateEnd: currentDate});
+      games.matchPlans = await populateGames('games', { gender: selectedOption.gender, leagueId: selectedOption.leagues, phaseId: selectedOption.phases, groupId: selectedOption.group, dateStart: "2022-02-15"});
     }
 
     const selectSession = (event) => {
       activedSession.value = event.target.id;
+    }
+
+    const selectTeamSession = (event) => {
+      selectedTeamId.value = event.id;
+      activedSession.value = event.activedSession.value;
     }
 
     return {
@@ -137,11 +140,13 @@
         groupsOptions,
         games,
         activedSession,
+        selectedTeamId,
         handlerGender,
         handlerLeagues,
         handlerPhases,
         handlerGroups,
-        selectSession
+        selectSession,
+        selectTeamSession
     }
   }
 }
@@ -189,15 +194,26 @@
 }
 
 .selects-box {
- max-width: 80%;
+  /* max-width: 80%;
  margin: 0 auto;
  display: grid;
  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
  row-gap: 5px;
- column-gap: 10px;
-}
-/* .select-filters {
+ column-gap: 10px; */
 
-} */
+}
+
+.filter-form-box > div  {
+  background-color: red;
+  /* max-width: 80%;
+ margin: 0 auto;
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+ row-gap: 5px;
+ column-gap: 10px; */
+}
+.select-filters {
+  max-width: 200px !important;
+}
 
 </style>

@@ -17,7 +17,7 @@ export function useApiFetch() {
       const res = await api.get(urlWithParams, { 
         params: requestParams, 
         headers: { 
-            Authorization: "" 
+            Authorization: AppData.gc_apikey 
         }, 
     });
       response.value = res.data;

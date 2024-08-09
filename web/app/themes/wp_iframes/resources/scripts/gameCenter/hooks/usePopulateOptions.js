@@ -31,23 +31,21 @@ export function usePopulateOptions() {
         return formater(response.value, "groupId", "caption");
     }
 
-    const populateGames = async (params = {}) => {
+    const populateGames = async (url, params = {}) => {
         const game_params = {
             region: "SVRG",
-            includeCup: "1",
-            gender: "m",
+            gender: "",
             leagueId: "",
             phaseId: "",
             groupId: "",
-            dateStart: "2023-01-05",
-            dateEnd: "2023-08-16",
             clubId: "",
             teamId: "",
-            hallId: ""
         }
         const mergedParams = Object.assign({}, game_params, params);
 
-        await fetchData(endpoints.games, null, mergedParams);
+        console.log("mergedParams: ", mergedParams);
+
+        await fetchData(url, null, mergedParams);
 
         console.log("response.value: ", response.value);
 

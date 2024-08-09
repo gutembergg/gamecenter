@@ -1,11 +1,16 @@
 export function useFormaterResonse() {
     const formater = (data, idKey, labelKey) => {
-        return data.map(item => {
-            const value = item[idKey];
-            const label = item[labelKey];
+        if(Array.isArray(data)){
+            return data.map(item => {
+                const value = item[idKey];
+                const label = item[labelKey];
+        
+                return { value, label };
+            });
+        }else {
+            return {};
+        }
     
-            return { value, label };
-        });
     };
 
     return {formater}
