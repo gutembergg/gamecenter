@@ -34,12 +34,6 @@ export function usePopulateOptions() {
     const populateGames = async (url, params = {}) => {
         const game_params = {
             region: "SVRG",
-            gender: "",
-            leagueId: "",
-            phaseId: "",
-            groupId: "",
-            clubId: "",
-            teamId: "",
         }
         const mergedParams = Object.assign({}, game_params, params);
 

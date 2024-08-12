@@ -12,44 +12,47 @@
         </div>
     </div>
     <div v-show="activedSession === 'championship'" class="selects-box">
-      <Vueform class="filter-form-box">
-        <SelectElement
-          name="select_gender"
-          placeholder="Select gender"
-          @change="handlerGender"
-          :value="selectedOption.gender"
-          :native="false"
-          :items="[{ value: 'm', label: 'Homme'}, { value: 'f', label: 'Femme'}]"
-          class="select-filters"
-          :columns="{ container: 3 }"
-        />
-        <SelectElement
-          name="select_leagues"
-          placeholder="Select league"
-          @change="handlerLeagues"
-          :native="false"
-          :items="leaguesOptions"
-          class="select-filters"
-           :columns="{ container: 3 }"
-        />
-        <SelectElement
-          name="select phases"
-          placeholder="Select phase"
-          @change="handlerPhases"
-          :native="false"
-          :items="phasesOptions"
-          class="select-filters"
-          :columns="{ container: 3 }"
-        />
-        <SelectElement
-          name="select gropues"
-          placeholder="Select groupe"
-          @change="handlerGroups"
-          :native="false"
-          :items="groupsOptions"
-          class="select-filters"
-          :columns="{ container: 3 }"
-        />
+      <Vueform class="filter-form-box" :columns="{  sm: 12, md: 6, lg: 3 }" >
+          <SelectElement
+            name="select_gender"
+            placeholder="Sélectionnez le sexe"
+            @change="handlerGender"
+            :value="selectedOption.gender"
+            :native="false"
+            :items="[{ value: 'm', label: 'Homme'}, { value: 'f', label: 'Femme'}]"
+            class="select-filters"
+            
+                        
+          />
+          <SelectElement
+            ref="selectLeaguesRef"
+            name="select_leagues"
+            id="select_leagues"
+            placeholder="Sélectionnez la ligue"
+            @change="handlerLeagues"
+            :native="false"
+            :items="leaguesOptions"
+            class="select-filters"
+            
+          />
+          <SelectElement
+            name="select_phases"
+            placeholder="Sélectionnez la phase"
+            @change="handlerPhases"
+            :native="false"
+            :items="phasesOptions"
+            class="select-filters"
+            
+          />
+          <SelectElement
+            name="select_groups"
+            placeholder="Sélectionnez le groupe"
+            @change="handlerGroups"
+            :native="false"
+            :items="groupsOptions"
+            class="select-filters"
+            
+          />
     </Vueform>
     </div>
 
@@ -95,34 +98,65 @@
 
     const activedSession = ref("championship");
     const selectedTeamId = ref(null);
+    const selectLeaguesRef = ref(null);
 
     const { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames } = usePopulateOptions();
 
     const handlerGender = async (newValue, oldValue, el$) => {
-      let select2 = el$.form$.el$('select_leagues');
-      console.log("select_leagues",select2);
+      const select = el$.form$.el$('select_leagues');
+      select.clear()
       selectedOption.gender = newValue;
-      leaguesOptions.value = await populateLeaguesOptions(newValue);
+
+      if(selectedOption.gender){
+        leaguesOptions.value = await populateLeaguesOptions( selectedOption.gender);
+
+        if(leaguesOptions.value.length === 1){
+          const defaultValue = leaguesOptions.value[0].value;
+          selectedOption.leagues = leaguesOptions.value[0];
+
+          //handlerLeagues(defaultValue, "", select);
+          // const element = document.getElementsByClassName("vf-multiselect-single-label");
+          //element.click()
+          //selectLeaguesRef.value.open();
+        //  selectLeaguesRef.value.$el.click();
+
+        }
+
+      }
     }
 
-    const handlerLeagues = async (newValue) => {
+    const handlerLeagues = async (newValue, oldValue, el$) => {
+      const select = el$.form$.el$('select_phases');
+      select.clear()
       selectedOption.leagues = newValue;
-      phasesOptions.value = await populatePhasesOptions(newValue);
+
+      if(selectedOption.leagues){
+       phasesOptions.value = await populatePhasesOptions(selectedOption.leagues);
+      }
     }
 
-    const handlerPhases = async (newValue) => {
+    const handlerPhases = async (newValue, oldValue, el$) => {
+      const select = el$.form$.el$('select_groups');
+      select.clear()
       selectedOption.phases = newValue;
-      groupsOptions.value = await populateGroupsOptions(newValue);
+
+      if(selectedOption.phases){
+        groupsOptions.value = await populateGroupsOptions(selectedOption.phases);
+      }
     }
 
-    const handlerGroups = async (newValue) => {
+    const handlerGroups = async (newValue, oldValue, el$) => {
       const limitDataByYearAgo = getDateOneYearAgo();
       const currentDate = getCurrentDate();
       selectedOption.group = newValue;
-      games.current = await populateGames('upcomingGames', { gender: selectedOption.gender, leagueId: selectedOption.leagues, phaseId: selectedOption.phases, groupId: selectedOption.group});
+      
+      if(selectedOption.group){
+        games.current = await populateGames('upcomingGames', { gender: selectedOption.gender, leagueId: selectedOption.leagues, phaseId: selectedOption.phases, groupId: selectedOption.group});
       games.results = await populateGames('games', { gender: selectedOption.gender, leagueId: selectedOption.leagues, phaseId: selectedOption.phases, groupId: selectedOption.group, dateStart: limitDataByYearAgo, dateEnd: currentDate});
       games.matchPlans = await populateGames('games', { gender: selectedOption.gender, leagueId: selectedOption.leagues, phaseId: selectedOption.phases, groupId: selectedOption.group, dateStart: "2022-02-15"});
+      }
     }
+     
 
     const selectSession = (event) => {
       activedSession.value = event.target.id;
@@ -141,6 +175,7 @@
         games,
         activedSession,
         selectedTeamId,
+        selectLeaguesRef,
         handlerGender,
         handlerLeagues,
         handlerPhases,
@@ -194,26 +229,22 @@
 }
 
 .selects-box {
-  /* max-width: 80%;
- margin: 0 auto;
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
- row-gap: 5px;
- column-gap: 10px; */
-
+  width: 80%;
+  margin: 0 auto;
 }
 
-.filter-form-box > div  {
-  background-color: red;
-  /* max-width: 80%;
- margin: 0 auto;
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
- row-gap: 5px;
- column-gap: 10px; */
+.filter-form-box  {
+
 }
 .select-filters {
-  max-width: 200px !important;
+  /* max-width: 300px !important; */
+}
+
+@media (max-width: 1200px) {
+  /* .vf-layout-inner-wrapper.vf-multiselect.vf-multiselect-wrapper.vf-multiselect-placeholder {
+    font-size: 5px;
+    color: red;
+  } */
 }
 
 </style>

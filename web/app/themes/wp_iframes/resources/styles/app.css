@@ -8,3 +8,10 @@
     --vf-success: red;
     --vf-ring-color: red;
 }
+
+.vf-row {
+    /* display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 3px;
+    padding: 10px; */
+}
