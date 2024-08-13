@@ -13,5 +13,9 @@ export function useFormaterResonse() {
     
     };
 
-    return {formater}
+    const formatObject = (data) => {
+        return data.map(obj => obj.caption);
+    }
+    return { formater, formatObject }
+
 };

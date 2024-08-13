@@ -1,9 +1,9 @@
 <template>
     <div>
         <HeaderMenu v-show="games.current || games.results || games.matchPlans" @selectedSession="selectedSession" />
-        <Games v-show="activedSession === 'current'" :games="games.current" @selectedTeamId="selectedTeam" />
-        <Games v-show="activedSession === 'results'" :games="games.results" @selectedTeamId="selectedTeam"/>
-        <Games v-show="activedSession === 'matchPlans'" :games="games.matchPlans" @selectedTeamId="selectedTeam"/>
+        <Games v-show="activedSession === 'current'" :games="games.current" @selectedTeamData="selectedTeam" />
+        <Games v-show="activedSession === 'results'" :games="games.results" @selectedTeamData="selectedTeam"/>
+        <Games v-show="activedSession === 'matchPlans'" :games="games.matchPlans" @selectedTeamData="selectedTeam"/>
     </div>
 </template>
 
@@ -39,8 +39,9 @@ export default {
 
         const selectedTeam = (event) => {
             const id = event.id;
+            const caption = event.caption;
             activedSession.value = 'teams';
-            ctx.emit('activedSession', { activedSession, id });
+            ctx.emit('activedSession', { activedSession, id, caption });
         }
 
         return { activedSession, selectedSession, selectedTeam }

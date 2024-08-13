@@ -1,5 +1,4 @@
 <template>
-  <div>GameCenter</div>
   <main class="gc_container">
     <div class="gc_box">
         <div class="gc_content">
@@ -36,6 +35,7 @@
             
           />
           <SelectElement
+            ref="selectPhasesRef"
             name="select_phases"
             placeholder="Sélectionnez la phase"
             @change="handlerPhases"
@@ -45,6 +45,7 @@
             
           />
           <SelectElement
+            ref="selectGroupsRef"
             name="select_groups"
             placeholder="Sélectionnez le groupe"
             @change="handlerGroups"
@@ -56,9 +57,9 @@
     </Vueform>
     </div>
 
-    <Championship v-if="activedSession === 'championship'" :sessionActived="activedSession" :games="games" @activedSession="selectTeamSession" />
+    <Championship v-if="activedSession === 'championship'" :sessionActived="activedSession" :games="games" @activedSession="async (event) => selectTeamSession(event)" />
 
-    <Teams v-if="activedSession === 'teams'" :selectedTeamId="selectedTeamId" />
+    <Teams v-if="activedSession === 'teams'" :selectedTeamInfo="selectedTeamInfo" />
 
   </main>
 </template>
@@ -99,29 +100,32 @@
     const activedSession = ref("championship");
     const selectedTeamId = ref(null);
     const selectLeaguesRef = ref(null);
+    const selectPhasesRef = ref(null);
+    const selectGroupsRef = ref(null);
 
-    const { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames } = usePopulateOptions();
+    const selectedTeamInfo = reactive({
+      id: null,
+      caption: null
+    });
+
+    const { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames, populateTeamsOptions } = usePopulateOptions();
 
     const handlerGender = async (newValue, oldValue, el$) => {
-      const select = el$.form$.el$('select_leagues');
-      select.clear()
+      const selectLeague = el$.form$.el$('select_leagues');
+
+      selectLeague.clear()
       selectedOption.gender = newValue;
 
       if(selectedOption.gender){
         leaguesOptions.value = await populateLeaguesOptions( selectedOption.gender);
+        selectLeaguesRef.value.focus();
+        // if(leaguesOptions.value.length === 1){
+        //   const defaultValue = leaguesOptions.value[0].value;
+        //   selectedOption.leagues = defaultValue;
+        //   optionDefaultValue.value = leaguesOptions.value[0];
 
-        if(leaguesOptions.value.length === 1){
-          const defaultValue = leaguesOptions.value[0].value;
-          selectedOption.leagues = leaguesOptions.value[0];
-
-          //handlerLeagues(defaultValue, "", select);
-          // const element = document.getElementsByClassName("vf-multiselect-single-label");
-          //element.click()
-          //selectLeaguesRef.value.open();
-        //  selectLeaguesRef.value.$el.click();
-
-        }
-
+        //   handlerLeagues(defaultValue, "", selectLeague);
+        // }
       }
     }
 
@@ -132,6 +136,8 @@
 
       if(selectedOption.leagues){
        phasesOptions.value = await populatePhasesOptions(selectedOption.leagues);
+       selectPhasesRef.value.focus();
+
       }
     }
 
@@ -142,6 +148,8 @@
 
       if(selectedOption.phases){
         groupsOptions.value = await populateGroupsOptions(selectedOption.phases);
+        selectGroupsRef.value.focus();
+
       }
     }
 
@@ -162,8 +170,11 @@
       activedSession.value = event.target.id;
     }
 
-    const selectTeamSession = (event) => {
+    const selectTeamSession = async (event) => {
+      console.log("event-----", event);
       selectedTeamId.value = event.id;
+      selectedTeamInfo.id = event.id;
+      selectedTeamInfo.caption = event.caption;
       activedSession.value = event.activedSession.value;
     }
 
@@ -175,7 +186,10 @@
         games,
         activedSession,
         selectedTeamId,
+        selectedTeamInfo,
         selectLeaguesRef,
+        selectPhasesRef,
+        selectGroupsRef,
         handlerGender,
         handlerLeagues,
         handlerPhases,

@@ -7,7 +7,7 @@
           v-for="game in item.games"
           :key="game.gameId"
           :game="game"
-          @teamId="selectedTeam"
+          @selectedTeamInfo="selectedTeam"
         />
       </ul>
     </div>
@@ -23,7 +23,7 @@ export default {
   components: {
     Game
   },
-  emits: ['selectedTeamId'],
+  emits: ['selectedTeamData'],
 
   setup (props, ctx) {
         
@@ -45,7 +45,8 @@ export default {
 
       const selectedTeam = (event) => {
         const id = event.id;
-        ctx.emit('selectedTeamId', { id });
+        const caption = event.caption;
+        ctx.emit('selectedTeamData', { id, caption });
       }
         return { convertDate, selectedTeam }
     }

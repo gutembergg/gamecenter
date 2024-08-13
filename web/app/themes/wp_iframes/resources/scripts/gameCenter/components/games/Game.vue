@@ -7,13 +7,13 @@
       </svg>
       <div class="game-hours">{{ convertHours(game.playDate) }}</div>
     </div>
-    <div @click.stop="selectTeam(game.teams.home.teamId)"  class="game-teams game-teams_home">
+    <div @click.stop="selectTeam(game.teams.home.teamId, game.teams.home.caption)"  class="game-teams game-teams_home">
       <span class="game-teams_text">{{ game.teams.home.caption }}</span>
     </div>
     <div class="game-vs">
           <span class="vs">VS</span>
     </div>
-    <div @click.stop="selectTeam(game.teams.away.teamId)" class="game-teams game-teams_away">
+    <div @click.stop="selectTeam(game.teams.away.teamId, game.teams.away.caption)" class="game-teams game-teams_away">
       <span class="game-teams_text">{{ game.teams.away.caption }}</span>
     </div>
     <div v-if="game.resultSummary.wonSetsHomeTeam && game.resultSummary.wonSetsAwayTeam" class="game-teams game-teams_result">
@@ -78,7 +78,7 @@ export default {
   props: {
     game: Object
   },
-  emits: ['teamId'],
+  emits: ['selectedTeamInfo'],
     setup (props, ctx) {
         const activeDropdown = ref(false);
 
@@ -86,8 +86,8 @@ export default {
           activeDropdown.value = !activeDropdown.value; 
         }
 
-        const selectTeam = (id) => {
-          ctx.emit('teamId', { id })
+        const selectTeam = (id, caption) => {
+          ctx.emit('selectedTeamInfo', { id, caption })
         }
 
         const convertHours = (dateTimeStr) => {

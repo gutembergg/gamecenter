@@ -2,7 +2,7 @@ import { useApiFetch } from '../hooks/useApiFetch.js'
 import { useFormaterResonse } from '../hooks/useFormaterResponse';
 
 const { isLoading, response, error, fetchData } = useApiFetch();
-const { formater } = useFormaterResonse();
+const { formater, formatObject } = useFormaterResonse();
 
 const endpoints = {
     leagues: 'leagues',
@@ -37,11 +37,7 @@ export function usePopulateOptions() {
         }
         const mergedParams = Object.assign({}, game_params, params);
 
-        console.log("mergedParams: ", mergedParams);
-
         await fetchData(url, null, mergedParams);
-
-        console.log("response.value: ", response.value);
 
         const groupedByPlayDate = response.value.reduce((acc, game) => {
             const playDateDateOnly = game.playDate.split(" ")[0];
@@ -63,5 +59,15 @@ export function usePopulateOptions() {
         return groupedArray;
     }
 
-    return { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames }
+    const populateTeamsOptions = async (params) => {
+        await fetchData(endpoints.teams, null, params);
+        return response.value;
+    }
+
+    const getTeamApiByCaption = async (params) => {
+        await fetchData(endpoints.teams, null, params);
+        return response.value;
+    }
+
+    return { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames, populateTeamsOptions, getTeamApiByCaption }
 };
