@@ -18,3 +18,12 @@ export const getDateOneYearAgo = () => {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
+
+export const convertObjectToStringArray = (data) => {
+  return data ? data.map(obj => obj.caption) : [];
+}
+
+
+export function getByCaption(arr, caption) {
+  return arr.find(obj => obj.caption === caption);
+}

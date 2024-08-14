@@ -36,7 +36,10 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 2rem;
+    margin-top: 0;
+    position: sticky;
+    top: -9px;
+    z-index: 10;
 }
 
 .gc_submenu-content {

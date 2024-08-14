@@ -14,9 +14,10 @@
             </Vueform>
        </div>
 
-       <div class="team-content">
-        <div>Logo du Club</div>
-            <div class="team-images">
+       <div class="team-container">
+            <div class="team-row">
+                <div class="logo-text">Logo du Club</div>
+
                 <div v-if="team !== null && team.teamlogo" class="team-logo">
                     <img :src="team.teamlogo" alt="team logo"/>
                 </div>
@@ -25,28 +26,46 @@
                 </div>
             </div>
 
-            <div class="team-dropdowns">
-                <div>Tableau</div>
-                <div>Plans de matches</div>
+            <div class="team-leagues">{{ selectedTeamInfo.leagues }}</div>
+            <div v-if="team" class="team-dropdowns">
+                <Dropdown btnTitle="Tableau">
+                    <RankTable :clubId="team.club.clubId" />
+                </Dropdown>
+
+                <Dropdown btnTitle="Plans de matches">
+                    <div>Plans de matches</div>
+                </Dropdown>
             </div>
        </div>
+
+       
     </div>
+
+   
 </template>
 
 <script>
 import { onMounted, ref } from 'vue';
 import { useApiFetch } from "../../hooks/useApiFetch";
-import {usePopulateOptions} from '../../hooks/usePopulateOptions';
+import { usePopulateOptions } from '../../hooks/usePopulateOptions';
+import { convertObjectToStringArray, getByCaption } from "../../helpers/formaterFunctions";
+import Dropdown from "../form/Dropdown";
+import RankTable from "../championship/RankTable";
 
 
 export default {
     props: {
         selectedTeamInfo: Object,
     },
+    components: {
+        Dropdown,
+        RankTable
+    }, 
+
     setup (props) {
 
         const { isLoading, response, error, fetchData } = useApiFetch();
-        const { populateTeamsOptions, getTeamApiByCaption } = usePopulateOptions();
+        const { populateTeamsOptions } = usePopulateOptions();
 
         const listTeams = ref(null);
         const teamOptions = ref({ value: props.selectedTeamInfo.id, label: props.selectedTeamInfo.caption });
@@ -57,13 +76,15 @@ export default {
             if(props.selectedTeamInfo){
                 await fetchData('teams', props.selectedTeamInfo.id);
                 team.value = response.value;
-                listTeams.value = await populateTeamsOptions({ region: 'SVRG', gender: 'f' });
-                teams.value = formatObject(listTeams.value); 
+                listTeams.value = await populateTeamsOptions({ region: 'SVRG', gender: props.selectedTeamInfo.gender });
+                teams.value = convertObjectToStringArray(listTeams.value); 
             }
+
+            console.log("team:::", team.value.club.clubId);
         });
 
         const handlerTeamsOptions = async (newValue) => {
-            const result =  getTeamByCaption(listTeams.value, newValue);
+            const result =  getByCaption(listTeams.value, newValue);
             team.value = result;
 
         }
@@ -72,14 +93,6 @@ export default {
            return await populateTeamsOptions({ region: 'SVRG', gender: 'f' });
         }
 
-        function getTeamByCaption(arr, caption) {
-            return arr.find(obj => obj.caption === caption);
-        }
-
-        const formatObject = (data) => {
-        return data.map(obj => obj.caption);
-    }
-        
         return { teamOptions, teams, team, handlerTeamsOptions, getTeamsOptions }
     }
 }
@@ -92,13 +105,64 @@ export default {
     margin: 0 auto;
 }
 
-.team-content {
-    padding-top: 25px;
+.team-container {
+  min-height: 350px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.team-row {
+  display: flex;
+  width: 100%;
+}
+
+.team-logo {
+    width: 40%;
+}
+
+.team-image {
+  width: 60%;
+}
+
+.team-logo img,
+.team-image img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.team-other-images {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.team-other-images img {
+  width: calc(100% / 3);
+  height: auto;
+  margin: 5px;
+}
+
+.team-dropdowns {
+    display: flex;
+    flex-direction: column;
+}
+
+.team-leagues {
+    color: #d40018;
 }
 
 .select-search-box {
-    max-width: 300px;
+    margin-bottom: 2rem;
 }
+
+/* .team-content {
+    padding-top: 25px;
+}
+
+
 
 .team-images {
     display: flex;
@@ -112,6 +176,6 @@ export default {
 
 .team-images-box {
     max-width: 40%;
-}
+} */
 
 </style>

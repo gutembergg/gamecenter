@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 :root, :before, :after, * {
-    --vf-primary: red;
-    --vf-primary-darker: red;
-    --vf-success: red;
-    --vf-ring-color: red;
+    --vf-primary: #d40018;
+    --vf-primary-darker: #d40018;
+    --vf-success: #d40018;
+    --vf-ring-color: #d40018;
 }
 
 .vf-row {

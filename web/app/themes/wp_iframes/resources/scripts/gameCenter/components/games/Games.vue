@@ -55,7 +55,7 @@ export default {
 
 <style lang="css" scoped>
 .games_container {
-    width: 79%;
+    width: 78%;
     margin: 0 auto;
     padding-bottom: 14px;
 }
@@ -68,6 +68,7 @@ export default {
   border-top-left-radius: 4px;  
   border-top-right-radius: 4px;
 }
+
 
 @media (max-width: 1150px) {
   .game-date {

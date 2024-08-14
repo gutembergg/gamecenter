@@ -4,6 +4,7 @@
         <Games v-show="activedSession === 'current'" :games="games.current" @selectedTeamData="selectedTeam" />
         <Games v-show="activedSession === 'results'" :games="games.results" @selectedTeamData="selectedTeam"/>
         <Games v-show="activedSession === 'matchPlans'" :games="games.matchPlans" @selectedTeamData="selectedTeam"/>
+        <RankTable v-if="activedSession === 'table'" :group="selectedOption" @selectedTeam="selectedTeam" />
     </div>
 </template>
 
@@ -11,16 +12,19 @@
 import { ref, onMounted } from 'vue';
 import HeaderMenu from './HeaderMenu.vue';
 import Games from '../games/Games';
+import RankTable from "./RankTable";
 
 
 export default {
     props: {
         games: Object,
-        sessionActived: String
+        sessionActived: String,
+        selectedOption: Object
     },
     components: {
         HeaderMenu,
-        Games
+        Games,
+        RankTable
     },
     emits: ['activedSession'],
 

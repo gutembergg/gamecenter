@@ -18,17 +18,19 @@ const endpoints = {
 export function usePopulateOptions() {
     const populateLeaguesOptions = async (params) => {
         await fetchData(endpoints.leagues, "SVRG", { gender: params, includeCup: "1" });
-        return formater(response.value, "leagueId", "caption");
+       // return formater(response.value, "leagueId", "caption");
+
+        return { data: response.value }
     }
 
     const populatePhasesOptions = async (params) => {
         await fetchData(endpoints.phases, params, {});
-        return formater(response.value, "phaseId", "caption");
+        return { data: response.value }
     }
 
-    const populateGroupsOptions = async (params) => {
-        await fetchData(endpoints.groups, params, {});
-        return formater(response.value, "groupId", "caption");
+    const populateGroupsOptions = async (params, reqParams) => {
+        await fetchData(endpoints.groups, params, reqParams);
+        return { data: response.value }
     }
 
     const populateGames = async (url, params = {}) => {
