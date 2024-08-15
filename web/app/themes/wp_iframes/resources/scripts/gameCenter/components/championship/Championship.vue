@@ -4,7 +4,9 @@
         <Games v-show="activedSession === 'current'" :games="games.current" @selectedTeamData="selectedTeam" />
         <Games v-show="activedSession === 'results'" :games="games.results" @selectedTeamData="selectedTeam"/>
         <Games v-show="activedSession === 'matchPlans'" :games="games.matchPlans" @selectedTeamData="selectedTeam"/>
-        <RankTable v-if="activedSession === 'table'" :group="selectedOption" @selectedTeam="selectedTeam" />
+        <div class="rank-wrapper">
+            <RankTable v-show="activedSession === 'table'" :teamsRank="games.table" :group="selectedOption" @selectedTeam="selectedTeam" />
+        </div>
     </div>
 </template>
 
@@ -54,5 +56,10 @@ export default {
 </script>
 
 <style lang="css" scoped>
+
+.rank-wrapper {
+    width: 78%;
+    margin: 0 auto;
+}
 
 </style>

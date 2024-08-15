@@ -100,10 +100,10 @@
     });
 
     const selectedOption = reactive({
-      gender: "",
-      leagues: "",
-      phases: "",
-      groups: ""
+      gender: null,
+      leagues: null,
+      phases: null,
+      groups: null
     });
 
     const games = reactive({
@@ -125,7 +125,8 @@
       id: null,
       caption: null,
       gender: null,
-      leagues: null
+      leagues: null,
+      groups: null
     });
 
     const optionDefaultValue = reactive({
@@ -134,12 +135,13 @@
       groups: null
     })
 
-    const { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames, populateTeamsOptions } = usePopulateOptions();
+    const { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames, populateTeamsRank } = usePopulateOptions();
 
     const handlerGender = async (newValue, oldValue, el$) => {
       const selectLeague = el$.form$.el$('select_leagues');
       selectLeague.clear();
       selectLeague.update();
+      optionDefaultValue.leagues = null;
 
       if(newValue){
         selectedOption.gender = newValue;
@@ -147,8 +149,6 @@
 
         leaguesOptions.options = convertObjectToStringArray(leaguesData.data);
         leaguesOptions.apiData = leaguesData.data;
-
-        optionDefaultValue.leagues = null;
 
         if(leaguesOptions.options.length === 1){
           const defaultValue = leaguesOptions.options[0];
@@ -168,6 +168,7 @@
       const selectPhases = el$.form$.el$('select_phases');
       selectPhases.clear();
       selectPhases.update();
+      optionDefaultValue.phases = null;
 
       if(newValue){
        selectedLeaguesCaption.value = newValue;
@@ -196,7 +197,7 @@
       const selectGroup = el$.form$.el$('select_groups');
       selectGroup.clear();
       selectGroup.update();
-
+      optionDefaultValue.groups = null;
 
       if(newValue){
         selectedOption.phases = getByCaption(phasesOptions.apiData, newValue).phaseId;
@@ -225,9 +226,11 @@
       const currentDate = getCurrentDate();
 
       if(newValue){
+        selectedOption.groups = getByCaption(groupsOptions.apiData, newValue).groupId;
         games.current = await populateGames('upcomingGames', { gender: selectedOption.gender, leagueId: selectedOption.leagues, phaseId: selectedOption.phases, groupId: selectedOption.groups});
         games.results = await populateGames('games', { gender: selectedOption.gender, leagueId: selectedOption.leagues, phaseId: selectedOption.phases, groupId: selectedOption.groups, dateStart: limitDataByYearAgo, dateEnd: currentDate});
         games.matchPlans = await populateGames('games', { gender: selectedOption.gender, leagueId: selectedOption.leagues, phaseId: selectedOption.phases, groupId: selectedOption.groups, dateStart: "2022-02-15"});
+        games.table = await populateTeamsRank(selectedOption.groups);
       }
     }
 
@@ -241,6 +244,7 @@
       selectedTeamInfo.caption = event.caption;
       selectedTeamInfo.gender = selectedOption.gender;
       selectedTeamInfo.leagues = selectedLeaguesCaption.value;
+      selectedTeamInfo.groups = selectedOption.groups;
       activedSession.value = event.activedSession.value;
     }
 

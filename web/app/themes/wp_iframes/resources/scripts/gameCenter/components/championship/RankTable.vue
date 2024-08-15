@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="rank-container">
     <table border="1">
       <thead>
         <tr>
@@ -18,7 +18,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="team in teams" :key="team.teamId" class="row-border">
+        <tr v-for="team in teamsRank" :key="team.teamId" class="row-border">
           <td>{{ team.rank }}</td>
           <td @click="selectTeams(team.teamId, team.teamCaption)" class="team-caption">{{ team.teamCaption }}</td>
           <td>{{ team.games }}</td>
@@ -45,26 +45,15 @@ export default {
     props:{
         teams: Array,
         group: Object,
-        clubId: Number || String
+        clubId: Number || String,
+        teamsRank: Array
 
     },
     emits: ['selectedTeam'],
 
-    setup (props, ctx) {
+    setup(props, ctx) {
         const teams = ref(null);
         const { isLoading, response, error, fetchData } = useApiFetch();
-
-        onMounted(async () => {
-          if(props.group){
-            await fetchData('ranking', props.group.groups);
-            teams.value = response.value;
-          } 
-
-          if(props.clubId){
-            await fetchData('ranking', null, { clubId: props.clubId});
-            teams.value = response.value;
-          }
-        });
 
         const selectTeams = (id, caption) => {
           ctx.emit('selectedTeam', { id, caption })
@@ -80,8 +69,8 @@ export default {
 
 <style lang="css" scoped>
 
-.container {
-  width: 78%;
+.rank-container {
+  width: 100%;
   margin: 0 auto;
 }
 

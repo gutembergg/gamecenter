@@ -18,8 +18,6 @@ const endpoints = {
 export function usePopulateOptions() {
     const populateLeaguesOptions = async (params) => {
         await fetchData(endpoints.leagues, "SVRG", { gender: params, includeCup: "1" });
-       // return formater(response.value, "leagueId", "caption");
-
         return { data: response.value }
     }
 
@@ -71,5 +69,10 @@ export function usePopulateOptions() {
         return response.value;
     }
 
-    return { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames, populateTeamsOptions, getTeamApiByCaption }
+    const populateTeamsRank = async (params) => {
+        await fetchData(endpoints.ranking, params);
+        return response.value;
+    }
+
+    return { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames, populateTeamsOptions, getTeamApiByCaption, populateTeamsRank }
 };
