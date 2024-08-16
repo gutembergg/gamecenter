@@ -21,4 +21,3 @@ const app = createApp(GameCenter)
 
 app.use(Vueform, vueformConfig)
 app.mount("#appGameCenterVue");
-

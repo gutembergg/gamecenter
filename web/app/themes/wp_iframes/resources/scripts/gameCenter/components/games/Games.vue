@@ -26,9 +26,12 @@ export default {
   emits: ['selectedTeamData'],
 
   setup (props, ctx) {
+    console.log("Props:: ", props.games);
+
         
       const convertDate = (dateStr) => {
           const date = new Date(dateStr);
+
 
           // Create a formatter for the full weekday name in French
           const optionsWeekday = { weekday: 'long' };

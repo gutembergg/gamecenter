@@ -18,7 +18,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="team in teamsRank" :key="team.teamId" class="row-border">
+        <tr v-for="team in teamsRank" :key="team.teamId" class="row-border" :class="setCurrentTeam(team)">
           <td>{{ team.rank }}</td>
           <td @click="selectTeams(team.teamId, team.teamCaption)" class="team-caption">{{ team.teamCaption }}</td>
           <td>{{ team.games }}</td>
@@ -43,7 +43,7 @@ import { useApiFetch } from "../../hooks/useApiFetch";
 
 export default {
     props:{
-        teams: Array,
+        currentTeam: Object,
         group: Object,
         clubId: Number || String,
         teamsRank: Array
@@ -52,16 +52,19 @@ export default {
     emits: ['selectedTeam'],
 
     setup(props, ctx) {
-        const teams = ref(null);
         const { isLoading, response, error, fetchData } = useApiFetch();
 
         const selectTeams = (id, caption) => {
           ctx.emit('selectedTeam', { id, caption })
         }
+
+        const setCurrentTeam = (team) => {
+          return props.currentTeam && props.currentTeam.teamId == team.teamId ? 'team-hover' : '';
+        }
     
         return {
-            teams,
-            selectTeams
+            selectTeams,
+            setCurrentTeam
         }
     }
 }
@@ -103,6 +106,10 @@ cursor: pointer;
 .team-caption:hover {
   color: #d40018;
   text-decoration: underline #d40018;
+}
+
+.team-hover {
+  background-color: #E0E0E0;
 }
 
 </style>

@@ -1,6 +1,6 @@
 <template>
     <div class="teams-container">
-       <div v-if="teams" class="select-search-box">
+       <div class="select-search-box">
             <Vueform>
                 <SelectElement
                     :default="teamOptions.label"
@@ -14,8 +14,8 @@
             </Vueform>
        </div>
 
-       <div class="team-container">
-        <div class="logo-text">Logo du Club</div>
+       <div v-if="team"  class="team-container">
+            <div class="logo-text">Logo du Club</div>
             <div class="team-row">
                 <div v-if="team !== null && team.teamlogo" class="team-logo">
                     <img :src="team.teamlogo" alt="team logo"/>
@@ -25,14 +25,14 @@
                 </div>
             </div>
 
-            <div class="team-leagues">{{ selectedTeamInfo.leagues }}</div>
+            <div class="team-leagues">{{ selectedTeamInfo.leagues?.caption }}</div>
             <div v-if="team" class="team-dropdowns">
                 <Dropdown btnTitle="Tableau">
-                    <RankTable :teamsRank="teamsRank" />
+                    <RankTable :teamsRank="teamsRank" :currentTeam="team" />
                 </Dropdown>
 
                 <Dropdown btnTitle="Plans de matches">
-                    <div>Plans de matches</div>
+                    <Games v-if="teamPlanMatchs" :games="teamPlanMatchs" />
                 </Dropdown>
 
                 <Dropdown btnTitle="Club">
@@ -54,6 +54,7 @@ import { usePopulateOptions } from '../../hooks/usePopulateOptions';
 import { convertObjectToStringArray, getByCaption } from "../../helpers/formaterFunctions";
 import Dropdown from "../form/Dropdown";
 import RankTable from "../championship/RankTable";
+import Games from "../games/Games";
 
 //v-if="team !== null && team.staff" v-for="teamImg in team.staff"
 export default {
@@ -62,48 +63,70 @@ export default {
     },
     components: {
         Dropdown,
-        RankTable
+        RankTable,
+        Games
     }, 
 
     setup (props) {
 
         const { isLoading, response, error, fetchData } = useApiFetch();
-        const { populateTeamsOptions } = usePopulateOptions();
+        const { populateTeamsOptions, populateGames } = usePopulateOptions();
 
         const listTeams = ref(null);
         const teamOptions = ref({ value: props.selectedTeamInfo.id, label: props.selectedTeamInfo.caption });
         const teams = ref(null);
         const team = ref(null);
         const teamsRank = ref(null);
+        const teamPlanMatchs = ref(null);
+
+        console.log("props.selectedTeamInfo: ", props.selectedTeamInfo);
 
         onMounted(async () => {
-            if(props.selectedTeamInfo){
-                await fetchData('teams', props.selectedTeamInfo.id);
-                team.value = response.value;
-                listTeams.value = await populateTeamsOptions({ region: 'SVRG', gender: props.selectedTeamInfo.gender });
-                teams.value = convertObjectToStringArray(listTeams.value); 
-                getClubRank();
-            }
+           await initData();
         });
 
         const handlerTeamsOptions = async (newValue) => {
             const result =  getByCaption(listTeams.value, newValue);
             team.value = result;
-            getClubRank();
-
+            await getClubRank(result.teamId);
         }
 
         const getTeamsOptions = async () => {
            return await populateTeamsOptions({ region: 'SVRG', gender: 'f' });
         }
 
-        const getClubRank = async () => {
-            await fetchData('ranking', props.selectedTeamInfo.groups);
-            console.log("Team-rank-clubId: ", response.value);
+        const getClubRank = async (id) => {
+            await fetchData('ranking', id);
             teamsRank.value = response.value;
         }
 
-        return { teamOptions, teams, team, teamsRank, handlerTeamsOptions, getTeamsOptions }
+        const getTeamPlansMatch = async () => {
+            teamPlanMatchs.value = await populateGames('upcomingGames',
+                { 
+                    region: 'SVRG',
+                    gender: props.selectedTeamInfo.gender,
+                    leagueId: props.selectedTeamInfo.leagues.id,
+                    phaseId: props.selectedTeamInfo.phases,
+                    groupId: props.selectedTeamInfo.groups,
+                    teamId: props.selectedTeamInfo.id
+                });
+        }
+
+        const initData = async () => {
+            if(props.selectedTeamInfo.id && props.selectedTeamInfo.groups && props.selectedTeamInfo.leagues){
+                await fetchData('teams', props.selectedTeamInfo.id);
+                team.value = response.value;
+                listTeams.value = await populateTeamsOptions({ region: 'SVRG', gender: props.selectedTeamInfo.gender });
+                teams.value = convertObjectToStringArray(listTeams.value); 
+                await getClubRank(props.selectedTeamInfo.groups);
+                await getTeamPlansMatch();
+            } else {
+                listTeams.value = await populateTeamsOptions({ region: 'SVRG' });
+                teams.value = convertObjectToStringArray(listTeams.value);
+            }
+        }
+
+        return { teamOptions, teams, team, teamsRank, teamPlanMatchs, handlerTeamsOptions, getTeamsOptions }
     }
 }
 </script>

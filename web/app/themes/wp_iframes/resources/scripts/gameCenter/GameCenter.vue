@@ -13,13 +13,15 @@
     <div v-show="activedSession === 'championship'" class="selects-box">
       <Vueform class="filter-form-box" :columns="{  sm: 12, md: 6, lg: 3 }" >
           <SelectElement
+            ref="selectGenderRef"
+            @mounted="setAutoFocus"
+            id="Gender_select"
             name="select_gender"
             placeholder="Sélectionnez le sexe"
             @change="handlerGender"
-            :value="selectedOption.gender"
             :native="false"
             :items="[{ value: 'm', label: 'Homme'}, { value: 'f', label: 'Femme'}]"
-            class="select-filters"
+            class="focus:outline-none focus:ring focus:ring-violet-300 select-filters"
             
                         
           />
@@ -69,8 +71,8 @@
 </template>
 
 <script>
-  import { ref, reactive, nextTick } from "vue";
-  import {usePopulateOptions} from './hooks/usePopulateOptions';
+  import { ref, reactive, onMounted } from "vue";
+  import { usePopulateOptions } from './hooks/usePopulateOptions';
   import Championship from './components/championship/Championship';
   import Teams from './components/teams/Teams';
   import { getDateOneYearAgo, getCurrentDate } from './helpers/formaterFunctions';
@@ -118,6 +120,7 @@
     const selectLeaguesRef = ref(null);
     const selectPhasesRef = ref(null);
     const selectGroupsRef = ref(null);
+    const selectGenderRef = ref(null);
 
     const selectedLeaguesCaption = ref(null);
 
@@ -126,7 +129,8 @@
       caption: null,
       gender: null,
       leagues: null,
-      groups: null
+      groups: null,
+      phases: null
     });
 
     const optionDefaultValue = reactive({
@@ -243,9 +247,16 @@
       selectedTeamInfo.id = event.id;
       selectedTeamInfo.caption = event.caption;
       selectedTeamInfo.gender = selectedOption.gender;
-      selectedTeamInfo.leagues = selectedLeaguesCaption.value;
+      selectedTeamInfo.leagues = { caption: selectedLeaguesCaption.value, id: selectedOption.leagues }
       selectedTeamInfo.groups = selectedOption.groups;
+      selectedTeamInfo.phases = selectedOption.phases;
       activedSession.value = event.activedSession.value;
+    }
+
+    const setAutoFocus = (element) => {
+      console.log("setAutoFocus--", element);
+      //selectGenderRef.value.focus();
+     //element.focus();
     }
 
 
@@ -263,12 +274,14 @@
         selectLeaguesRef,
         selectPhasesRef,
         selectGroupsRef,
+        selectGenderRef,
         handlerGender,
         handlerLeagues,
         handlerPhases,
         handlerGroups,
         selectSession,
-        selectTeamSession
+        selectTeamSession,
+        setAutoFocus
     }
   }
 }
