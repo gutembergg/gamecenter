@@ -13,6 +13,11 @@ export function useApiFetch() {
 
     const urlWithParams = urlParams ? `${url}/${urlParams}` : url;
 
+    const default_params = {
+      region: "SVRG",
+  }
+    const mergedParams = Object.assign({}, default_params, requestParams);
+
     try {
       const res = await api.get(urlWithParams, { 
         params: requestParams, 

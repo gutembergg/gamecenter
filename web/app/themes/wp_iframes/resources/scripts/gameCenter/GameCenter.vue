@@ -10,8 +10,16 @@
             </div>
         </div>
     </div>
+
     <div v-show="activedSession === 'championship'" class="selects-box">
-      <Vueform class="filter-form-box" :columns="{  sm: 12, md: 6, lg: 3 }" >
+
+      <v-select v-model="selectedOption.gender.label" @update:modelValue="handlerGender" :searchable="false" :clearable="false" :options="[{ value: 'm', label: 'Homme'}, { value: 'f', label: 'Femme'}]" placeholder="Sélectionnez le sexe"></v-select>
+      <v-select v-model="selectedOption.leagues.label" @update:modelValue="handlerLeagues" :dropdown-should-open="leaguesShouldOpen" :searchable="false" :clearable="false" :options="leaguesOptions.options" label="label" placeholder="Sélectionnez la ligue" />
+      <v-select v-model="selectedOption.phases.label" @update:modelValue="handlerPhases" :searchable="false" :clearable="false" :options="phasesOptions.options" label="label" placeholder="Sélectionnez la phase" />
+      <v-select v-model="selectedOption.groups.label" @update:modelValue="handlerGroups" :searchable="false" :clearable="false" :options="groupsOptions.options" label="label" placeholder="Sélectionnez le groupe" />
+      <!-- <v-select :options="phasesOptions.options"></v-select>
+      <v-select :options="groupsOptions.options"></v-select> -->
+      <!-- <Vueform class="filter-form-box" :columns="{  sm: 12, md: 6, lg: 3 }" >
           <SelectElement
             ref="selectGenderRef"
             @mounted="setAutoFocus"
@@ -60,7 +68,7 @@
             class="select-filters"
             
           />
-    </Vueform>
+    </Vueform> -->
     </div>
 
     <Championship v-if="activedSession === 'championship'" :sessionActived="activedSession" :games="games" :selectedOption="selectedOption" @activedSession="async (event) => selectTeamSession(event)" />
@@ -71,12 +79,14 @@
 </template>
 
 <script>
-  import { ref, reactive, onMounted } from "vue";
+  import { ref, reactive, watch } from "vue";
   import { usePopulateOptions } from './hooks/usePopulateOptions';
   import Championship from './components/championship/Championship';
   import Teams from './components/teams/Teams';
   import { getDateOneYearAgo, getCurrentDate } from './helpers/formaterFunctions';
   import { convertObjectToStringArray, getByCaption } from "./helpers/formaterFunctions";
+  import 'vue-select/dist/vue-select.css';
+
   
 
   export default {
@@ -88,24 +98,24 @@
   setup() {
     const leaguesOptions = reactive({
       apiData: null,
-      options: null
+      options: []
     });
 
     const phasesOptions = reactive({
       apiData: null,
-      options: null
+      options: []
     });
 
     const groupsOptions = reactive({
       apiData: null,
-      options: null
+      options: []
     });
 
     const selectedOption = reactive({
-      gender: null,
-      leagues: null,
-      phases: null,
-      groups: null
+      gender: { label: null, value: null},
+      leagues: { label: null, value: null},
+      phases: { label: null, value: null},
+      groups: { label: null, value: null}
     });
 
     const games = reactive({
@@ -141,100 +151,134 @@
 
     const { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames, populateTeamsRank } = usePopulateOptions();
 
-    const handlerGender = async (newValue, oldValue, el$) => {
-      const selectLeague = el$.form$.el$('select_leagues');
-      selectLeague.clear();
-      selectLeague.update();
-      optionDefaultValue.leagues = null;
+    const leaguesShouldOpen = (el) => {
+      //leaguesShouldOpen.value = true
 
-      if(newValue){
-        selectedOption.gender = newValue;
-        const leaguesData = await populateLeaguesOptions(selectedOption.gender);
+      console.log("leaguesOptions.options", el.selectedValue.length === 1 );
 
-        leaguesOptions.options = convertObjectToStringArray(leaguesData.data);
-        leaguesOptions.apiData = leaguesData.data;
+      return  el.selectedValue.length === 1 ? false : true;
+
+    }
+
+    const handlerGender = async (genderValue) => {
+
+      console.log("handlerGender-----------------", genderValue);
+      // const selectLeague = el$.form$.el$('select_leagues');
+      // selectLeague.clear();
+      // selectLeague.update();
+      //optionDefaultValue.leagues = null;
+
+      console.log("genderValue: ", genderValue);
+
+      if(genderValue){
+        selectedOption.gender.value = genderValue.value;
+        const leaguesData = await populateLeaguesOptions(selectedOption.gender.value);
+
+       // leaguesOptions.options = convertObjectToStringArray(leaguesData.data);
+       leaguesOptions.options = leaguesData.data.map(league => ({
+          label: league.caption,
+          value: league.leagueId
+        }));
+        //leaguesOptions.apiData = leaguesData.data;
 
         if(leaguesOptions.options.length === 1){
           const defaultValue = leaguesOptions.options[0];
-          optionDefaultValue.leagues = defaultValue;
+          //optionDefaultValue.leagues = defaultValue.label;
 
-          const selectedLeagueData = getByCaption(leaguesOptions.apiData, defaultValue);
-          selectedOption.leagues = selectedLeagueData.leagueId;
 
-          handlerLeagues(selectedLeagueData.caption, null, selectLeague);
+          //const selectedLeagueData = getByCaption(leaguesOptions.apiData, defaultValue);
+          selectedOption.leagues.label = defaultValue.label;
+          selectedOption.leagues.value = defaultValue.value;
+
+
+          handlerLeagues(defaultValue);
         } else {
-          selectLeaguesRef.value.focus();
+          selectedOption.leagues.label = '';
+          //leaguesShouldOpen.value = true;
         }
       }
     }
 
-    const handlerLeagues = async (newValue, oldValue, el$, defaultIdValue = null) => {
-      const selectPhases = el$.form$.el$('select_phases');
-      selectPhases.clear();
-      selectPhases.update();
-      optionDefaultValue.phases = null;
+    const handlerLeagues = async (leagueValue) => {
+      // const selectPhases = el$.form$.el$('select_phases');
+      // selectPhases.clear();
+      // selectPhases.update();
+      // optionDefaultValue.phases = null;
 
-      if(newValue){
-       selectedLeaguesCaption.value = newValue;
-       selectedOption.leagues = getByCaption(leaguesOptions.apiData, newValue).leagueId;
-       const phasesData = await populatePhasesOptions(selectedOption.leagues);
+      if(leagueValue){
+      // selectedLeaguesCaption.value = newValue;
+       //selectedOption.leagues = getByCaption(leaguesOptions.apiData, newValue).leagueId;
+       const phasesData = await populatePhasesOptions(leagueValue.value);
 
-       phasesOptions.options = convertObjectToStringArray(phasesData.data);
-       phasesOptions.apiData = phasesData.data;
+       //selectedOption.leagues.label = leagueValue.label;
+
+       phasesOptions.options = phasesData.data.map(phase => ({
+          label: phase.caption,
+          value: phase.phaseId
+        }));
+       //phasesOptions.options = convertObjectToStringArray(phasesData.data);
+      // phasesOptions.apiData = phasesData.data;
 
        if(phasesOptions.options.length === 1){
           const defaultValue = phasesOptions.options[0];
-          optionDefaultValue.phases = defaultValue;
+          //optionDefaultValue.phases = defaultValue;
 
-          const selectedPhasesData = getByCaption(phasesOptions.apiData, defaultValue);
-          selectedOption.phases = selectedPhasesData.phaseId;
+          //const selectedPhasesData = getByCaption(phasesOptions.apiData, defaultValue);
+          selectedOption.phases.label = defaultValue.label;
 
-          handlerPhases(selectedPhasesData.caption, null, selectPhases);
+          handlerPhases(defaultValue);
        } else {
-         selectPhasesRef.value.focus();
+         //selectPhasesRef.value.focus();
+         selectedOption.phases.label = '';
        }
       } 
       
     }
 
-    const handlerPhases = async (newValue, oldValue, el$) => {
-      const selectGroup = el$.form$.el$('select_groups');
-      selectGroup.clear();
-      selectGroup.update();
-      optionDefaultValue.groups = null;
+    const handlerPhases = async (phasesValue) => {
+      // const selectGroup = el$.form$.el$('select_groups');
+      // selectGroup.clear();
+      // selectGroup.update();
+      // optionDefaultValue.groups = null;
 
-      if(newValue){
-        selectedOption.phases = getByCaption(phasesOptions.apiData, newValue).phaseId;
-        const groupsData = await populateGroupsOptions(selectedOption.phases);
+      if(phasesValue){
+        //selectedOption.phases = getByCaption(phasesOptions.apiData, newValue).phaseId;
+        //selectedOption.groups.label = null;
+        const groupsData = await populateGroupsOptions(phasesValue.value);
 
-        groupsOptions.options = convertObjectToStringArray(groupsData.data);
-        groupsOptions.apiData = groupsData.data;
+        groupsOptions.options = groupsData.data.map(group => ({
+          label: group.caption,
+          value: group.groupId
+        }));
+        //groupsOptions.apiData = groupsData.data;
 
         if(groupsOptions.options.length === 1){
           const defaultValue = groupsOptions.options[0];
-          optionDefaultValue.groups = defaultValue;
+         // optionDefaultValue.groups = defaultValue;
 
-          const selectedGroupsData = getByCaption(groupsOptions.apiData, defaultValue);
-          selectedOption.groups = selectedGroupsData.groupId;
+          //const selectedGroupsData = getByCaption(groupsOptions.apiData, defaultValue);
+          selectedOption.groups.label = defaultValue.label;
 
-          handlerGroups(selectedGroupsData.caption, null, selectGroup);
+          handlerGroups(defaultValue);
 
         } else {
-         selectGroupsRef.value.focus();
+         //selectGroupsRef.value.focus();
+         selectedOption.groups.label = '';
         }
       }
     }
 
-    const handlerGroups = async (newValue, oldValue, el$) => {
+    const handlerGroups = async (groupValue) => {
       const limitDataByYearAgo = getDateOneYearAgo();
       const currentDate = getCurrentDate();
 
-      if(newValue){
-        selectedOption.groups = getByCaption(groupsOptions.apiData, newValue).groupId;
-        games.current = await populateGames('upcomingGames', { gender: selectedOption.gender, leagueId: selectedOption.leagues, phaseId: selectedOption.phases, groupId: selectedOption.groups});
-        games.results = await populateGames('games', { gender: selectedOption.gender, leagueId: selectedOption.leagues, phaseId: selectedOption.phases, groupId: selectedOption.groups, dateStart: limitDataByYearAgo, dateEnd: currentDate});
-        games.matchPlans = await populateGames('games', { gender: selectedOption.gender, leagueId: selectedOption.leagues, phaseId: selectedOption.phases, groupId: selectedOption.groups, dateStart: "2022-02-15"});
-        games.table = await populateTeamsRank(selectedOption.groups);
+      if(groupValue){
+        console.log("groupValue: ", groupValue);
+        //selectedOption.groups.label = null;
+        games.current = await populateGames('upcomingGames', { gender: selectedOption.gender.value, leagueId: selectedOption.leagues.value, phaseId: selectedOption.phases.value, groupId: groupValue.value});
+        games.results = await populateGames('games', { gender: selectedOption.gender.value, leagueId: selectedOption.leagues.value, phaseId: selectedOption.phases.value, groupId: groupValue.value, dateStart: limitDataByYearAgo, dateEnd: currentDate});
+        games.matchPlans = await populateGames('games', { gender: selectedOption.gender.value, leagueId: selectedOption.leagues.value, phaseId: selectedOption.phases.value, groupId: groupValue.value, dateStart: "2022-02-15"});
+        games.table = await populateTeamsRank(groupValue.value);
       }
     }
 
@@ -267,6 +311,7 @@
         groupsOptions,
         games,
         optionDefaultValue,
+        leaguesShouldOpen,
         activedSession,
         selectedTeamId,
         selectedTeamInfo,
@@ -330,6 +375,10 @@
 
 .selects-box {
   width: 80%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 3px;
+  padding: 10px;
   margin: 0 auto;
   padding-bottom: 2rem;
   z-index: 9999;

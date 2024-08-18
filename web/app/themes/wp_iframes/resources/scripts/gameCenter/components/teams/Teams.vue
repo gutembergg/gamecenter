@@ -103,7 +103,6 @@ export default {
         const getTeamPlansMatch = async () => {
             teamPlanMatchs.value = await populateGames('upcomingGames',
                 { 
-                    region: 'SVRG',
                     gender: props.selectedTeamInfo.gender,
                     leagueId: props.selectedTeamInfo.leagues.id,
                     phaseId: props.selectedTeamInfo.phases,
