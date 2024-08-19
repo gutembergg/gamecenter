@@ -8,3 +8,10 @@
     --vf-success: #d40018;
     --vf-ring-color: #d40018;
 }
+
+*:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+

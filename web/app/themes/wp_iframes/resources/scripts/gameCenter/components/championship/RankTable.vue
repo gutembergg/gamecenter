@@ -75,10 +75,12 @@ export default {
 .rank-container {
   width: 100%;
   margin: 0 auto;
+  overflow-x: auto;
 }
 
 table {
   width: 100%;
+  min-width: 800px;
   border-collapse: collapse;
   color: #666;
 }
@@ -111,5 +113,7 @@ cursor: pointer;
 .team-hover {
   background-color: #E0E0E0;
 }
+
+
 
 </style>

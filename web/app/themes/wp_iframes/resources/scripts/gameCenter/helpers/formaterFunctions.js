@@ -22,6 +22,6 @@ export const convertObjectToStringArray = (data) => {
 }
 
 
-export function getByCaption(arr, caption) {
-  return arr.find(obj => obj.caption === caption);
+export function getByCaption(arr, label) {
+  return arr.find(obj => obj.label === label);
 }

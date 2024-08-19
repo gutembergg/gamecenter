@@ -20,11 +20,13 @@
       <span>{{ game.resultSummary.wonSetsHomeTeam }} : {{ game.resultSummary.wonSetsAwayTeam }}</span>
     </div>
     <div class="game-teams_mobile">
-      <div class="">
-        <span>{{ game.teams.home.caption }}</span>
+      <div @click.stop="selectTeam(game.teams.home.teamId, game.teams.home.caption)" class="game-teams_caption-mobile">
+        <span><span class="icon-lacation">D</span>{{ game.teams.home.caption }}</span>
       </div>
       <div class="">
-        <span class="">{{ game.teams.away.caption }}</span>
+        <span @click.stop="selectTeam(game.teams.home.teamId, game.teams.home.caption)" class="game-teams_caption-mobile">
+          <span class="icon-lacation">A</span>{{ game.teams.away.caption }}
+        </span>
       </div>
     </div>
     <div class="game-hall-info">
@@ -33,7 +35,7 @@
       </div>
       <div class="hall-name">{{ game.hall.caption }}, {{ game.hall.street }}, {{ game.hall.number }}, {{ game.hall.zip }}, {{ game.hall.city }}</div>
     </div>
-      <div class="icon-chevron">
+      <div class="icon-chevron" :class="{active: activeDropdown}">
           <svg width="10" height="10" viewBox="0 0 5 5" xmlns="http://www.w3.org/2000/svg">
             <polygon points="0,0 3,2.5 0,5" fill="black" />
           </svg>
@@ -158,6 +160,11 @@ export default {
     text-decoration: underline red;
 }
 
+.game-teams_caption-mobile:hover {
+  color: red;
+  text-decoration: underline red;
+}
+
 .game-hall-info_icon {
   margin-right: 8px;
 }
@@ -219,6 +226,10 @@ export default {
     transition: transform 0.3s ease;
 }
 
+.icon-chevron.active {
+    transform: rotate(90deg);
+}
+
 .game-referees-box {
  margin-right: 1rem;
 }
@@ -243,6 +254,16 @@ export default {
 }
 
 .game-lacation {
+  margin-right: 5px;
+}
+
+.icon-lacation {
+  background-color: #d40018;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  padding: 2px 5px;
+  font-size: 12px;
   margin-right: 5px;
 }
 

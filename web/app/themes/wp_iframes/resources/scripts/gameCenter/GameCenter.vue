@@ -12,14 +12,7 @@
     </div>
 
     <div v-show="activedSession === 'championship'" class="selects-box">
-
-      <v-select v-model="selectedOption.gender.label" @update:modelValue="handlerGender" :searchable="false" :clearable="false" :options="[{ value: 'm', label: 'Homme'}, { value: 'f', label: 'Femme'}]" placeholder="Sélectionnez le sexe"></v-select>
-      <v-select v-model="selectedOption.leagues.label" @update:modelValue="handlerLeagues" :dropdown-should-open="leaguesShouldOpen" :searchable="false" :clearable="false" :options="leaguesOptions.options" label="label" placeholder="Sélectionnez la ligue" />
-      <v-select v-model="selectedOption.phases.label" @update:modelValue="handlerPhases" :searchable="false" :clearable="false" :options="phasesOptions.options" label="label" placeholder="Sélectionnez la phase" />
-      <v-select v-model="selectedOption.groups.label" @update:modelValue="handlerGroups" :searchable="false" :clearable="false" :options="groupsOptions.options" label="label" placeholder="Sélectionnez le groupe" />
-      <!-- <v-select :options="phasesOptions.options"></v-select>
-      <v-select :options="groupsOptions.options"></v-select> -->
-      <!-- <Vueform class="filter-form-box" :columns="{  sm: 12, md: 6, lg: 3 }" >
+      <Vueform class="filter-form-box" :columns="{  sm: 12, md: 6, lg: 3 }" >
           <SelectElement
             ref="selectGenderRef"
             @mounted="setAutoFocus"
@@ -35,7 +28,7 @@
           />
           <SelectElement
             ref="selectLeaguesRef"
-            :default="optionDefaultValue.leagues"
+            :default="selectedOption.leagues.label"
             name="select_leagues"
             id="select_leagues"
             placeholder="Sélectionnez la ligue"
@@ -47,7 +40,7 @@
           />
           <SelectElement
             ref="selectPhasesRef"
-            :default="optionDefaultValue.phases"
+            :default="selectedOption.phases.label"
             name="select_phases"
             placeholder="Sélectionnez la phase"
             @change="handlerPhases"
@@ -59,7 +52,7 @@
           <SelectElement
             ref="selectGroupsRef"
             value-prop="value"
-            :default="optionDefaultValue.groups"
+            :default="selectedOption.groups.label"
             name="select_groups"
             placeholder="Sélectionnez le groupe"
             @change="handlerGroups"
@@ -68,10 +61,10 @@
             class="select-filters"
             
           />
-    </Vueform> -->
+    </Vueform>
     </div>
 
-    <Championship v-if="activedSession === 'championship'" :sessionActived="activedSession" :games="games" :selectedOption="selectedOption" @activedSession="async (event) => selectTeamSession(event)" />
+    <Championship v-if="activedSession === 'championship'" :sessionActived="activedSession" :isLoading="isLoading" :games="games" :selectedOption="selectedOption" @activedSession="async (event) => selectTeamSession(event)" />
 
     <Teams v-if="activedSession === 'teams'" :selectedTeamInfo="selectedTeamInfo" />
 
@@ -85,10 +78,7 @@
   import Teams from './components/teams/Teams';
   import { getDateOneYearAgo, getCurrentDate } from './helpers/formaterFunctions';
   import { convertObjectToStringArray, getByCaption } from "./helpers/formaterFunctions";
-  import 'vue-select/dist/vue-select.css';
-
-  
-
+ 
   export default {
     components: {
       Championship,
@@ -143,142 +133,134 @@
       phases: null
     });
 
-    const optionDefaultValue = reactive({
-      leagues: null,
-      phases: null,
-      groups: null
-    })
+    const isLoading = ref(false);
 
     const { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames, populateTeamsRank } = usePopulateOptions();
 
-    const leaguesShouldOpen = (el) => {
-      //leaguesShouldOpen.value = true
-
-      console.log("leaguesOptions.options", el.selectedValue.length === 1 );
-
-      return  el.selectedValue.length === 1 ? false : true;
+    const getSelectClick = (el) => {
+      console.log("Click!!", el);
+    }
+   
+    const watchSelected = (el) => {
+      console.log("watchSelected: ", selectLeaguesRef.value);
 
     }
 
-    const handlerGender = async (genderValue) => {
+    const handlerGender = async (newValue, oldValue, el$) => {
+      const selectLeague = el$.form$.el$('select_leagues');
+      selectLeague.clear();
+      selectLeague.update();
 
-      console.log("handlerGender-----------------", genderValue);
-      // const selectLeague = el$.form$.el$('select_leagues');
-      // selectLeague.clear();
-      // selectLeague.update();
-      //optionDefaultValue.leagues = null;
-
-      console.log("genderValue: ", genderValue);
-
-      if(genderValue){
-        selectedOption.gender.value = genderValue.value;
-        const leaguesData = await populateLeaguesOptions(selectedOption.gender.value);
-
-       // leaguesOptions.options = convertObjectToStringArray(leaguesData.data);
-       leaguesOptions.options = leaguesData.data.map(league => ({
+      if(newValue){
+        selectedOption.gender.value = newValue;
+        const leaguesData = await populateLeaguesOptions(newValue);
+        leaguesOptions.options = convertObjectToStringArray(leaguesData.data);
+      
+       leaguesOptions.apiData = leaguesData.data.map(league => ({
           label: league.caption,
           value: league.leagueId
         }));
-        //leaguesOptions.apiData = leaguesData.data;
 
-        if(leaguesOptions.options.length === 1){
-          const defaultValue = leaguesOptions.options[0];
-          //optionDefaultValue.leagues = defaultValue.label;
-
-
-          //const selectedLeagueData = getByCaption(leaguesOptions.apiData, defaultValue);
+        if(leaguesOptions.apiData.length === 1){
+          const defaultValue = leaguesOptions.apiData[0];
           selectedOption.leagues.label = defaultValue.label;
           selectedOption.leagues.value = defaultValue.value;
 
-
-          handlerLeagues(defaultValue);
+          handlerLeagues(selectedOption.leagues.label, null, selectLeague);
         } else {
-          selectedOption.leagues.label = '';
-          //leaguesShouldOpen.value = true;
+          selectLeaguesRef.value.focus();
+          selectedOption.leagues.label = null;
         }
       }
     }
 
-    const handlerLeagues = async (leagueValue) => {
-      // const selectPhases = el$.form$.el$('select_phases');
-      // selectPhases.clear();
-      // selectPhases.update();
-      // optionDefaultValue.phases = null;
+    const handlerLeagues = async (newValue, oldValue, el$) => {
+      const selectPhases = el$.form$.el$('select_phases');
+      selectPhases.clear();
+      selectPhases.update();
 
-      if(leagueValue){
-      // selectedLeaguesCaption.value = newValue;
-       //selectedOption.leagues = getByCaption(leaguesOptions.apiData, newValue).leagueId;
-       const phasesData = await populatePhasesOptions(leagueValue.value);
+      if(newValue){
+       selectedOption.leagues.label = newValue;
+       const getSelectedOption = getByCaption(leaguesOptions.apiData, newValue);
+       selectedOption.leagues.value = getSelectedOption.value;
+       const phasesData = await populatePhasesOptions(getSelectedOption.value);
+       phasesOptions.options = convertObjectToStringArray(phasesData.data);
 
-       //selectedOption.leagues.label = leagueValue.label;
-
-       phasesOptions.options = phasesData.data.map(phase => ({
+       phasesOptions.apiData = phasesData.data.map(phase => ({
           label: phase.caption,
           value: phase.phaseId
         }));
-       //phasesOptions.options = convertObjectToStringArray(phasesData.data);
-      // phasesOptions.apiData = phasesData.data;
 
-       if(phasesOptions.options.length === 1){
-          const defaultValue = phasesOptions.options[0];
-          //optionDefaultValue.phases = defaultValue;
-
-          //const selectedPhasesData = getByCaption(phasesOptions.apiData, defaultValue);
+       if(phasesOptions.apiData.length === 1){
+          const defaultValue = phasesOptions.apiData[0];
           selectedOption.phases.label = defaultValue.label;
+          selectedOption.phases.value = defaultValue.value;
 
-          handlerPhases(defaultValue);
+          handlerPhases(selectedOption.phases.label, null, selectPhases);
        } else {
-         //selectPhasesRef.value.focus();
-         selectedOption.phases.label = '';
+         selectPhasesRef.value.focus();
+         selectedOption.phases.label = null;
        }
       } 
-      
     }
 
-    const handlerPhases = async (phasesValue) => {
-      // const selectGroup = el$.form$.el$('select_groups');
-      // selectGroup.clear();
-      // selectGroup.update();
-      // optionDefaultValue.groups = null;
+    const handlerPhases = async (newValue, oldValue, el$) => {
+      const selectGroup = el$.form$.el$('select_groups');
+      selectGroup.clear();
+      selectGroup.update();
+      
+      if(newValue){
+        selectedOption.phases.label = newValue;
 
-      if(phasesValue){
-        //selectedOption.phases = getByCaption(phasesOptions.apiData, newValue).phaseId;
-        //selectedOption.groups.label = null;
-        const groupsData = await populateGroupsOptions(phasesValue.value);
+        const getSelectedPhases = getByCaption(phasesOptions.apiData, newValue);
+        const groupsData = await populateGroupsOptions(getSelectedPhases.value);
+        selectedOption.phases.value = getSelectedPhases.value;
 
-        groupsOptions.options = groupsData.data.map(group => ({
+        groupsOptions.options = convertObjectToStringArray(groupsData.data);
+        groupsOptions.apiData = groupsData.data.map(group => ({
           label: group.caption,
           value: group.groupId
         }));
-        //groupsOptions.apiData = groupsData.data;
 
-        if(groupsOptions.options.length === 1){
-          const defaultValue = groupsOptions.options[0];
-         // optionDefaultValue.groups = defaultValue;
-
-          //const selectedGroupsData = getByCaption(groupsOptions.apiData, defaultValue);
+        if(groupsOptions.apiData.length === 1){
+          const defaultValue = groupsOptions.apiData[0];
           selectedOption.groups.label = defaultValue.label;
+          selectedOption.groups.value = defaultValue.value;
 
-          handlerGroups(defaultValue);
+          handlerGroups(selectedOption.groups.label);
 
         } else {
-         //selectGroupsRef.value.focus();
-         selectedOption.groups.label = '';
+         selectGroupsRef.value.focus();
+         selectedOption.groups.label = null;
         }
       }
     }
 
-    const handlerGroups = async (groupValue) => {
+    const handlerGroups = async (newValue, oldValue, el$) => {
       const limitDataByYearAgo = getDateOneYearAgo();
       const currentDate = getCurrentDate();
 
-      if(groupValue){
-        console.log("groupValue: ", groupValue);
-        //selectedOption.groups.label = null;
-        games.current = await populateGames('upcomingGames', { gender: selectedOption.gender.value, leagueId: selectedOption.leagues.value, phaseId: selectedOption.phases.value, groupId: groupValue.value});
-        games.results = await populateGames('games', { gender: selectedOption.gender.value, leagueId: selectedOption.leagues.value, phaseId: selectedOption.phases.value, groupId: groupValue.value, dateStart: limitDataByYearAgo, dateEnd: currentDate});
-        games.matchPlans = await populateGames('games', { gender: selectedOption.gender.value, leagueId: selectedOption.leagues.value, phaseId: selectedOption.phases.value, groupId: groupValue.value, dateStart: "2022-02-15"});
-        games.table = await populateTeamsRank(groupValue.value);
+      if(newValue){
+        selectedOption.groups.label = newValue;
+        const selectedGroupsData = getByCaption(groupsOptions.apiData, newValue);
+        selectedOption.groups.value = selectedGroupsData.value;
+
+        try {
+          isLoading.value = true;
+
+          games.current = await populateGames('upcomingGames', { gender: selectedOption.gender.value, leagueId: selectedOption.leagues.value, phaseId: selectedOption.phases.value, groupId: selectedGroupsData.value});
+          
+          games.results = await populateGames('games', { gender: selectedOption.gender.value, leagueId: selectedOption.leagues.value, phaseId: selectedOption.phases.value, groupId: selectedGroupsData.value, dateStart: limitDataByYearAgo, dateEnd: currentDate});
+          games.matchPlans = await populateGames('games', { gender: selectedOption.gender.value, leagueId: selectedOption.leagues.value, phaseId: selectedOption.phases.value, groupId: selectedGroupsData.value, dateStart: "2022-02-15"});
+          games.table = await populateTeamsRank(selectedGroupsData.value);
+            
+        } catch (error) {
+          console.log("Error");
+        } finally {
+          isLoading.value = false;
+
+        }
+       
       }
     }
 
@@ -290,17 +272,15 @@
       selectedTeamId.value = event.id;
       selectedTeamInfo.id = event.id;
       selectedTeamInfo.caption = event.caption;
-      selectedTeamInfo.gender = selectedOption.gender;
-      selectedTeamInfo.leagues = { caption: selectedLeaguesCaption.value, id: selectedOption.leagues }
-      selectedTeamInfo.groups = selectedOption.groups;
-      selectedTeamInfo.phases = selectedOption.phases;
+      selectedTeamInfo.gender = selectedOption.gender.value;
+      selectedTeamInfo.leagues = { caption: selectedOption.leagues.label, id: selectedOption.leagues.value }
+      selectedTeamInfo.groups = selectedOption.groups.value;
+      selectedTeamInfo.phases = selectedOption.phases.value;
       activedSession.value = event.activedSession.value;
     }
 
     const setAutoFocus = (element) => {
-      console.log("setAutoFocus--", element);
-      //selectGenderRef.value.focus();
-     //element.focus();
+      selectGenderRef.value.focus();
     }
 
 
@@ -310,8 +290,6 @@
         phasesOptions,
         groupsOptions,
         games,
-        optionDefaultValue,
-        leaguesShouldOpen,
         activedSession,
         selectedTeamId,
         selectedTeamInfo,
@@ -320,13 +298,16 @@
         selectPhasesRef,
         selectGroupsRef,
         selectGenderRef,
+        isLoading,
         handlerGender,
         handlerLeagues,
         handlerPhases,
         handlerGroups,
         selectSession,
         selectTeamSession,
-        setAutoFocus
+        setAutoFocus,
+        watchSelected,
+        getSelectClick
     }
   }
 }
@@ -389,6 +370,16 @@
 }
 .select-filters {
   /* max-width: 300px !important; */
+}
+
+@media (max-width: 560px) {
+ .gc_content {
+  max-width: 100vw;
+ }
+
+ .selects-box {
+  width: 100%;
+}
 }
 
 @media (max-width: 1200px) {

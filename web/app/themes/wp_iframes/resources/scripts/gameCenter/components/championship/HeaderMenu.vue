@@ -55,7 +55,6 @@ export default {
 }
 
 .gc_submenu-buttons {
-    padding: 10px 20px;
     border: none;
     border-radius: 4px;
     font-size: 16px;
@@ -71,10 +70,11 @@ export default {
     outline: none;
     background: #8B0000;
 }
-    .gc_submenu-buttons.active {
-        outline: none;
-        background: #8B0000;
-    }
+
+.gc_submenu-buttons.active {
+    outline: none;
+    background: #8B0000;
+}
 
 .gc_submenu-result {
     margin-top: 20px;
@@ -86,8 +86,17 @@ export default {
     background: #8B0000 !important;
 }
 
-#gc_submenu {
-    /* display: none; */
+@media(max-width: 560px){
+    .gc_submenu-content {
+        width: 100%;
+    }
+}
+
+@media (max-width: 430px) {
+ 
+    .gc_submenu-header button:last-child {
+        grid-column: 1 / -1; /* Make the last button take up all available space */
+    }
 }
 
 </style>

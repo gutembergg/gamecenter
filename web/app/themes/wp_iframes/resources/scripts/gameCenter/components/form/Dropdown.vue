@@ -58,7 +58,7 @@
   .dropdown {
     position: relative;
     display: inline-block;
-    width: 70%;
+    width: 100%;
   }
   
   .dropdown-button {

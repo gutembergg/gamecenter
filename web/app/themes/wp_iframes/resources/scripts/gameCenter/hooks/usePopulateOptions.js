@@ -11,7 +11,8 @@ const endpoints = {
     games: 'games',
     teams: 'teams',
     ranking: 'ranking',
-    upcomingGames: 'upcomingGames'
+    upcomingGames: 'upcomingGames',
+    clubs: 'clubs'
 };
 
 
@@ -74,5 +75,10 @@ export function usePopulateOptions() {
         return response.value;
     }
 
-    return { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames, populateTeamsOptions, getTeamApiByCaption, populateTeamsRank }
+    const populateClubs = async (params) => {
+        await fetchData(endpoints.clubs, null, params);
+        return response.value;
+    }
+
+    return { populateLeaguesOptions, populatePhasesOptions, populateGroupsOptions, populateGames, populateTeamsOptions, getTeamApiByCaption, populateTeamsRank, populateClubs }
 };

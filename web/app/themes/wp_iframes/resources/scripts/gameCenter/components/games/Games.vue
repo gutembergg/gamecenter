@@ -26,9 +26,6 @@ export default {
   emits: ['selectedTeamData'],
 
   setup (props, ctx) {
-    console.log("Props:: ", props.games);
-
-        
       const convertDate = (dateStr) => {
           const date = new Date(dateStr);
 
@@ -58,7 +55,7 @@ export default {
 
 <style lang="css" scoped>
 .games_container {
-    width: 78%;
+    width: 100%;
     margin: 0 auto;
     padding-bottom: 14px;
 }
